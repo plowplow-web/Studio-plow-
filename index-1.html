@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>استودیو رایگان | ویرایشگر فیلتر و بافت</title>
+<style>
+:root{--bg:#f4f1ec;--fg:#1c1b19;--mut:#76716a;--card:#fff;--line:#ddd7cd;--acc:#1c1b19;--onacc:#fff;--chk:#e6e1d8;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121211;--fg:#efebe4;--mut:#9a948a;--card:#1c1b19;--line:#33312d;--acc:#efebe4;--onacc:#121211;--chk:#262421;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#121211;--fg:#efebe4;--mut:#9a948a;--card:#1c1b19;--line:#33312d;--acc:#efebe4;--onacc:#121211;--chk:#262421;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 Vazirmatn,Tahoma,"Segoe UI",system-ui,sans-serif}
+header{max-width:1000px;margin:0 auto;padding:18px 16px 6px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+h1{margin:0;font-size:22px;letter-spacing:.5px}
+header p{margin:0;color:var(--mut);font-size:13px}
+main{max-width:1000px;margin:0 auto;padding:10px 16px 40px;display:grid;gap:14px;grid-template-columns:1fr}
+@media(min-width:800px){main{grid-template-columns:1.4fr 1fr;align-items:start}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
+.stage{position:relative;min-height:220px;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:10px;background:repeating-conic-gradient(var(--chk) 0 25%,transparent 0 50%) 0 0/18px 18px}
+canvas{max-width:100%;height:auto;display:block}
+#drop{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;color:var(--mut);cursor:pointer;background:var(--card);padding:16px}
+#drop b{color:var(--fg);font-size:17px}
+#drop.on{outline:2px dashed var(--acc);outline-offset:-8px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.fi{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:0}
+.btn.up{position:relative;overflow:hidden;display:inline-block}
+button,.btn{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:10px;padding:8px 14px;cursor:pointer;touch-action:manipulation}
+button.pri{background:var(--acc);color:var(--onacc);border-color:var(--acc);font-weight:600}
+button:disabled{opacity:.4;cursor:default}
+.tabs{display:flex;gap:4px;margin-bottom:10px;overflow-x:auto}
+.tabs button{flex:1;white-space:nowrap;padding:8px 10px;font-size:14px}
+.tabs button.on{background:var(--acc);color:var(--onacc);border-color:var(--acc)}
+.pan{display:none}.pan.on{display:block}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.chips button{padding:6px 12px;font-size:13px;border-radius:99px}
+.chips button.on{background:var(--acc);color:var(--onacc);border-color:var(--acc)}
+.sw2 button{width:30px;height:30px;padding:0;border-radius:50%;border:1px solid var(--line)}
+.sw2 button.on{outline:3px solid var(--acc);outline-offset:2px}
+#fg{width:44px;height:34px;padding:0;border:1px solid var(--line);border-radius:8px;background:none}
+.row{display:grid;grid-template-columns:92px 1fr 34px;align-items:center;gap:8px;margin:6px 0;font-size:13px}
+.row output{color:var(--mut);text-align:left;direction:ltr;font-size:12px}
+input[type=range]{width:100%;accent-color:var(--acc)}
+input[type=text]{width:100%;font:inherit;padding:8px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg)}
+label.sw{display:flex;gap:8px;align-items:center;margin-bottom:10px;font-weight:600}
+h3{font-size:13px;color:var(--mut);margin:12px 0 6px;font-weight:600}
+#toast{position:fixed;inset-inline:0;bottom:calc(16px + env(safe-area-inset-bottom,0px));margin:auto;width:max-content;max-width:90%;background:var(--acc);color:var(--onacc);padding:8px 16px;border-radius:99px;opacity:0;transition:.25s;pointer-events:none}
+#toast.on{opacity:1}
+footer{max-width:1000px;margin:0 auto;padding:0 16px 24px;color:var(--mut);font-size:12px}
+</style>
+</head>
+<body>
+<header><h1>استودیو رایگان</h1><p>فیلتر، بافت و فیلتر کاراکتری — همه روی گوشی یا کامپیوتر خودت، بدون هزینه و بدون آپلود روی سرور</p></header>
+<main>
+ <section class="card">
+  <div class="stage"><canvas id="cv" width="10" height="10" hidden></canvas>
+   <div id="drop"><b>عکس را اینجا بکشید یا لمس کنید</b><span>JPG، PNG، WEBP — یا عکس را Paste کنید</span><input type="file" accept="image/*" class="fi"></div></div>
+  <div class="bar">
+   <label class="btn up" id="up">آپلود عکس<input type="file" accept="image/*" class="fi"></label>
+   <button id="cmp" disabled>نگه دار = عکس اصلی</button>
+   <button id="rst" disabled>بازنشانی</button>
+   <button id="dl" class="pri" disabled>دانلود عکس</button>
+  </div>
+ </section>
+ <section class="card">
+  <div class="tabs" id="tabs"><button data-t="p" class="on">فیلترها</button><button data-t="a">تنظیمات</button><button data-t="x">بافت</button><button data-t="c">کاراکتری</button></div>
+  <div class="pan on" id="p"><div class="chips" id="presets"></div></div>
+  <div class="pan" id="a"></div>
+  <div class="pan" id="x"><h3>نوع بافت</h3><div class="chips" id="texs"></div></div>
+  <div class="pan" id="c">
+   <label class="sw"><input type="checkbox" id="chOn"> فعال‌سازی فیلتر کاراکتری</label>
+   <h3>مجموعه حروف</h3><div class="chips" id="css"></div>
+   <h3>حالت رنگ</h3><div class="chips" id="cms"></div>
+   <h3>رنگ حروف (جدول رنگ)</h3><div class="chips sw2" id="pal"></div>
+   <label class="sw" style="font-weight:400"><input type="color" id="fg" value="#ffffff"> انتخاب رنگ آزاد</label>
+   <h3>متن دلخواه (اختیاری، مثلا اسم خودت)</h3><input type="text" id="cust" placeholder="مثلا: STUDIO">
+  </div>
+ </section>
+</main>
+<footer>این ابزار یک نسخه رایگان و مستقل با ایده‌ای مشابه است و ارتباط رسمی با سایت studioaaa.com ندارد. عکس‌ها فقط در مرورگر شما پردازش می‌شوند.</footer>
+<div id="toast"></div>
+<script>
+const $=s=>document.querySelector(s);
+const FK=['br','ct','sat','warm','fade','grain','vig','tex','texAmt'];
+const P0={br:0,ct:0,sat:0,warm:0,fade:0,grain:0,vig:0,tex:'none',texAmt:55,chars:false,cs:'classic',cell:8,cmode:'color',custom:'',fg:'#ffffff'};
+let P={...P0},W=0,H=0,baseData=null,comparing=false,dlCap=null,q=0;
+const cv=$('#cv'),ctx=cv.getContext('2d',{willReadFrequently:true});
+const bc=document.createElement('canvas'),bx=bc.getContext('2d',{willReadFrequently:true});
+const PRESETS={'اصلی':{},'فیلم':{ct:12,sat:-10,warm:15,fade:30,grain:35,vig:25},'قدیمی':{ct:-5,sat:-35,warm:40,fade:50,grain:45,vig:40,tex:'paper',texAmt:50},
+'سیاه‌وسفید':{sat:-100,ct:25,grain:30,vig:20},'نوآر':{sat:-100,ct:60,br:-10,grain:40,vig:55},'سینمایی':{ct:20,sat:10,warm:-20,fade:20,vig:35},
+'گرم':{warm:45,sat:15,br:5},'سرد':{warm:-45,sat:5},'گرین زیاد':{grain:75,ct:15,tex:'dust',texAmt:60},'نشت نور':{tex:'leak',texAmt:70,warm:10,fade:15}};
+const TEX={none:'بدون بافت',paper:'کاغذ',dust:'گرد و خراش',leak:'نشت نور'};
+const CS={classic:[' .:-=+*#%@','کلاسیک'],blocks:[' ░▒▓█','بلوکی'],bin:[' 01','صفر و یک'],custom:['','متن دلخواه']};
+const CM={color:'رنگی',mono:'سفید روی مشکی',ink:'مشکی روی سفید',pick:'رنگ دلخواه'};
+const SL=[['br','روشنایی',-100,100],['ct','کنتراست',-100,100],['sat','اشباع رنگ',-100,100],['warm','دمای رنگ',-100,100],['fade','محو (فید)',0,100],['grain','دانه (گرین)',0,100],['vig','تیرگی کناره‌ها',0,100]];
+const ui={};
+function chips(el,items,key,cb){const box=typeof el==='string'?$(el):el;Object.entries(items).forEach(([k,v])=>{const b=document.createElement('button');b.textContent=Array.isArray(v)?v[1]:v;b.dataset.k=k;b.onclick=()=>{cb?cb(k):(P[key]=k);sync();draw()};box.appendChild(b)});ui[key||el]=box}
+function slider(box,key,label,min,max){const r=document.createElement('div');r.className='row';r.innerHTML=`<span>${label}</span><input type="range" min="${min}" max="${max}" step="1"><output></output>`;const i=r.children[1],o=r.children[2];i.oninput=()=>{P[key]=+i.value;o.textContent=i.value;draw()};ui['s_'+key]=[i,o];box.appendChild(r)}
+SL.forEach(s=>slider($('#a'),s[0],s[1],s[2],s[3]));
+slider($('#x'),'texAmt','شدت بافت',0,100);
+slider($('#c'),'cell','اندازه حروف',4,24);
+chips('#presets',PRESETS,'preset',k=>{FK.forEach(f=>P[f]=P0[f]);Object.assign(P,PRESETS[k]);ui.preset.dataset.cur=k});
+chips('#texs',TEX,'tex');chips('#css',CS,'cs');chips('#cms',CM,'cmode');
+$('#chOn').onchange=e=>{P.chars=e.target.checked;draw()};
+$('#cust').oninput=e=>{P.custom=e.target.value;draw()};
+const COLS=['#ffffff','#000000','#ff3b30','#ff9500','#ffcc00','#34c759','#39ff14','#00c7be','#32ade6','#5856d6','#af52de','#ff2d92','#a2845e','#8e8e93'];
+COLS.forEach(c=>{const b=document.createElement('button');b.style.background=c;b.dataset.c=c;b.title=c;b.onclick=()=>pickC(c);$('#pal').appendChild(b)});
+function pickC(c){P.fg=c;P.cmode='pick';$('#fg').value=c;sync();draw()}
+$('#fg').oninput=e=>pickC(e.target.value);
+function sync(){
+ [...SL.map(s=>s[0]),'texAmt','cell'].forEach(k=>{const[i,o]=ui['s_'+k];i.value=P[k];o.textContent=P[k]});
+ const mark=(box,cur)=>[...box.children].forEach(b=>b.classList.toggle('on',b.dataset.k===cur));
+ mark(ui.preset,ui.preset.dataset.cur);mark(ui.tex,P.tex);mark(ui.cs,P.cs);mark(ui.cmode,P.cmode);$('#chOn').checked=P.chars;document.querySelectorAll('#pal button').forEach(b=>b.classList.toggle('on',b.dataset.c===P.fg&&P.cmode==='pick'))}
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#tabs button,.pan').forEach(x=>x.classList.remove('on'));b.classList.add('on');$('#'+b.dataset.t).classList.add('on')});
+ui.preset.dataset.cur='اصلی';sync();
+
+/* بارگذاری عکس */
+function load(f){if(!f)return;if(f.type&&!f.type.startsWith('image/'))return toast('فایل عکس انتخاب کنید');toast('در حال بارگذاری...');
+ const img=new Image();
+ img.onload=()=>{const m=1600,s=Math.min(1,m/Math.max(img.width,img.height));W=Math.round(img.width*s);H=Math.round(img.height*s);
+  bc.width=cv.width=W;bc.height=cv.height=H;bx.drawImage(img,0,0,W,H);baseData=bx.getImageData(0,0,W,H);
+  cv.hidden=false;$('#drop').style.display='none';['cmp','rst','dl'].forEach(i=>$('#'+i).disabled=false);draw()};
+ img.onerror=()=>toast('این عکس باز نشد');const fr=new FileReader();fr.onload=()=>{img.src=fr.result};fr.onerror=()=>toast('خواندن فایل ممکن نشد');fr.readAsDataURL(f)}
+document.querySelectorAll('.fi').forEach(i=>i.onchange=e=>{load(e.target.files[0]);e.target.value=''});
+const dz=$('#drop');['dragover','dragenter'].forEach(t=>document.addEventListener(t,e=>{e.preventDefault();dz.classList.add('on')}));
+['dragleave','drop'].forEach(t=>document.addEventListener(t,e=>{e.preventDefault();dz.classList.remove('on');if(t==='drop')load(e.dataTransfer.files[0])}));
+document.addEventListener('paste',e=>{const f=[...((e.clipboardData&&e.clipboardData.files)||[])][0];if(f)load(f)});
+const cmp=$('#cmp');['pointerdown'].forEach(t=>cmp.addEventListener(t,()=>{comparing=true;draw()}));
+['pointerup','pointerleave','pointercancel'].forEach(t=>cmp.addEventListener(t,()=>{if(comparing){comparing=false;draw()}}));
+$('#rst').onclick=()=>{P={...P0,chars:false};$('#cust').value='';ui.preset.dataset.cur='اصلی';sync();draw()};
+
+/* بافت‌ها */
+const tc={};
+function tex(t,w,h){const k=t+w+h;if(tc[k])return tc[k];const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');
+ if(t==='paper'){const s=document.createElement('canvas');s.width=Math.ceil(w/3);s.height=Math.ceil(h/3);const sx=s.getContext('2d'),id=sx.createImageData(s.width,s.height);
+  for(let i=0;i<id.data.length;i+=4){const v=165+Math.random()*90;id.data[i]=v;id.data[i+1]=v-6;id.data[i+2]=v-18;id.data[i+3]=255}
+  sx.putImageData(id,0,0);x.imageSmoothingEnabled=true;x.drawImage(s,0,0,w,h);x.strokeStyle='rgba(90,70,40,.12)';
+  for(let i=0;i<w*h/2500;i++){const a=Math.random()*w,b=Math.random()*h,l=4+Math.random()*14,r=Math.random()*6.28;x.beginPath();x.moveTo(a,b);x.lineTo(a+Math.cos(r)*l,b+Math.sin(r)*l);x.stroke()}}
+ else if(t==='dust'){for(let i=0;i<w*h/900;i++){x.fillStyle=Math.random()<.7?`rgba(255,255,255,${.2+Math.random()*.6})`:`rgba(0,0,0,${.2+Math.random()*.5})`;x.beginPath();x.arc(Math.random()*w,Math.random()*h,.4+Math.random()*1.8,0,6.3);x.fill()}
+  x.strokeStyle='rgba(255,255,255,.35)';for(let i=0;i<14;i++){const a=Math.random()*w;x.lineWidth=.6;x.beginPath();x.moveTo(a,Math.random()*h*.3);x.lineTo(a+(Math.random()-.5)*20,h*(.4+Math.random()*.6));x.stroke()}}
+ else if(t==='leak'){let g=x.createRadialGradient(w*.05,h*.2,0,w*.05,h*.2,Math.max(w,h)*.7);g.addColorStop(0,'rgba(255,140,40,.95)');g.addColorStop(.5,'rgba(255,60,110,.4)');g.addColorStop(1,'rgba(255,60,110,0)');x.fillStyle=g;x.fillRect(0,0,w,h);
+  g=x.createRadialGradient(w*.95,h*.9,0,w*.95,h*.9,Math.max(w,h)*.5);g.addColorStop(0,'rgba(255,200,80,.7)');g.addColorStop(1,'rgba(255,200,80,0)');x.fillStyle=g;x.fillRect(0,0,w,h)}
+ return tc[k]=c}
+
+/* رندر */
+function draw(){if(!baseData||q)return;q=requestAnimationFrame(()=>{q=0;render()})}
+function render(){
+ ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
+ if(comparing){ctx.putImageData(baseData,0,0);return}
+ const id=new ImageData(new Uint8ClampedArray(baseData.data),W,H),d=id.data;
+ const br=P.br*2.55,c=P.ct*2.55,f=(259*(c+255))/(255*(259-c)),s=1+P.sat/100,wm=P.warm*.4,fa=P.fade/100,gr=P.grain*1.2;
+ for(let i=0;i<d.length;i+=4){let r=d[i]+br,g=d[i+1]+br,b=d[i+2]+br;
+  r=f*(r-128)+128;g=f*(g-128)+128;b=f*(b-128)+128;
+  const l=.299*r+.587*g+.114*b;r=l+(r-l)*s;g=l+(g-l)*s;b=l+(b-l)*s;
+  r+=wm;b-=wm;if(fa){r=r*(1-fa*.25)+fa*45;g=g*(1-fa*.25)+fa*42;b=b*(1-fa*.25)+fa*40}
+  if(gr){const n=(Math.random()-.5)*gr;r+=n;g+=n;b+=n}
+  d[i]=r;d[i+1]=g;d[i+2]=b}
+ ctx.putImageData(id,0,0);
+ if(P.tex!=='none'&&P.texAmt>0){ctx.globalAlpha=P.texAmt/100;ctx.globalCompositeOperation=P.tex==='paper'?'multiply':P.tex==='leak'?'screen':'source-over';ctx.drawImage(tex(P.tex,W,H),0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over'}
+ if(P.vig>0){const g=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.3,W/2,H/2,Math.hypot(W,H)/2);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,`rgba(0,0,0,${P.vig/100*.85})`);ctx.fillStyle=g;ctx.fillRect(0,0,W,H)}
+ if(P.chars)ascii()}
+function ascii(){
+ const s=P.cell,ch=s*1.65,cols=Math.max(1,Math.floor(W/s)),rows=Math.max(1,Math.floor(H/ch));
+ const t=document.createElement('canvas');t.width=cols;t.height=rows;const tx=t.getContext('2d',{willReadFrequently:true});tx.drawImage(cv,0,0,cols,rows);
+ const d=tx.getImageData(0,0,cols,rows).data,ink=P.cmode==='ink',useC=P.custom.trim().length>0||P.cs==='custom';
+ const ramp=CS[P.cs===  'custom'?'classic':P.cs][1]&&CS[P.cs===  'custom'?'classic':P.cs][0],cust=[...(P.custom.trim()||'AAA')];let ci=0;
+ ctx.fillStyle=ink?'#fff':'#000';ctx.fillRect(0,0,W,H);ctx.font=`${s*1.65}px ui-monospace,Menlo,Consolas,monospace`;ctx.textBaseline='top';
+ for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){const i=(y*cols+x)*4,r=d[i],g=d[i+1],b=d[i+2],l=.299*r+.587*g+.114*b;let chr;
+  if(useC&&P.custom.trim()){if(ink?l>235:l<28)continue;chr=cust[ci++%cust.length]}
+  else{const n=ramp.length,k=Math.min(n-1,Math.floor((ink?255-l:l)/256*n));chr=ramp[k];if(chr===' ')continue}
+  ctx.fillStyle=P.cmode==='color'?`rgb(${r},${g},${b})`:P.cmode==='pick'?P.fg:ink?'#000':'#fff';ctx.fillText(chr,x*s,y*ch)}}
+
+/* دانلود */
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),2400)}
+$('#dl').onclick=()=>{if(!baseData)return;const was=comparing;comparing=false;render();
+ cv.toBlob(async b=>{if(!b)return toast('خروجی ساخته نشد');
+  try{if(dlCap){await dlCap.save({filename:'studio-free.png',data:b});toast('عکس ذخیره شد')}
+   else{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='studio-free.png';a.click();toast('دانلود شروع شد')}}
+  catch(e){if(!e||e.code!=='declined')toast('ذخیره عکس انجام نشد')}},'image/png')};
+try{(window.claude?claude.use('downloads'):Promise.resolve(null)).then(x=>dlCap=x).catch(()=>{})}catch(e){}
+</script>
+</body>
+</html>
